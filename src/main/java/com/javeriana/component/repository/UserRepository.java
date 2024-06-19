@@ -22,5 +22,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     @Modifying
     @Transactional
     @Query("UPDATE UserEntity u SET u.moodleId = :id WHERE u.userName = :username")
-    int updateMoodleIdByUsername(@Param("id") Integer id, @Param("username") String userName);
+    void updateMoodleIdByUsername(@Param("id") Integer id, @Param("username") String userName);
 }

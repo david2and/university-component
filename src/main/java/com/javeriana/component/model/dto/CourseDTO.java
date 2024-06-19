@@ -8,6 +8,6 @@ import lombok.Setter;
 public class CourseDTO {
     private String fullName;
     private String shortName;
-    private String categoryId;
+    private String categoryName;
     private String courseId;
 }

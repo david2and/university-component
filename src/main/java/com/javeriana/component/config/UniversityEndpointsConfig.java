@@ -13,4 +13,7 @@ public class UniversityEndpointsConfig {
     String usersEndpoint;
     String coursesEndpoint;
     String registrationsEndpoint;
+    String categoriesEndpoint;
+    String syncGrades;
+
 }

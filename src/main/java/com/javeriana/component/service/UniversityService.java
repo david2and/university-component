@@ -6,22 +6,24 @@ import com.javeriana.component.config.UniversityEndpointsConfig;
 import com.javeriana.component.config.UrlConfig;
 import com.javeriana.component.model.MoodleRolesEnum;
 import com.javeriana.component.model.dto.*;
+import com.javeriana.component.model.entity.CategoryEntity;
 import com.javeriana.component.model.entity.CourseEntity;
 import com.javeriana.component.model.entity.RegisterEntity;
 import com.javeriana.component.model.entity.UserEntity;
+import com.javeriana.component.model.request.CoursesRequest;
+import com.javeriana.component.model.request.GradesRequest;
+import com.javeriana.component.model.request.SyncRequest;
+import com.javeriana.component.model.response.CoursesResponse;
+import com.javeriana.component.model.response.StudentGradesResponse;
 import com.javeriana.component.rest.RestClient;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -43,6 +45,12 @@ public class UniversityService {
     RegisterService registerService;
 
     @Autowired
+    CategoryService categoryService;
+
+    @Autowired
+    MoodleService moodleService;
+
+    @Autowired
     private TaskSchedulingConfig taskSchedulingConfig;
 
     @PostConstruct
@@ -59,7 +67,7 @@ public class UniversityService {
         Map<String, String> params = new HashMap<>();
 
         List<UserDTO> universityUsers = restClient.getApiDataListWithDynamicParams(urlConfig.getUniversityUrl()+universityEndpointsConfig.getUsersEndpoint(),params, new ParameterizedTypeReference<List<UserDTO>>() {});
-        List<String> universityUserNames = universityUsers.stream().map(userDTO -> userDTO.getUserName()).collect(Collectors.toList());
+        List<String> universityUserNames = universityUsers.stream().map(UserDTO::getUserName).collect(Collectors.toList());
         List<String> userNamesRegistered = userService.findExistingUserNameIn(universityUserNames);
         List<UserDTO> usersNotRegistered = universityUsers.stream().filter(userDTO -> !userNamesRegistered.contains(userDTO.getUserName())).collect(Collectors.toList());
 
@@ -94,8 +102,37 @@ public class UniversityService {
         });
         }
 
+        List<CategoriesDTO> universityCategories = restClient.getApiDataListWithDynamicParams(urlConfig.getUniversityUrl()+universityEndpointsConfig.getCategoriesEndpoint(),params, new ParameterizedTypeReference<List<CategoriesDTO>>() {});
+        List<String> universityCategoriesNames = universityCategories.stream().map(CategoriesDTO::getName).toList();
+        List<String> categoriesRegistered = categoryService.findExistingCategoryNameIn(universityCategoriesNames);
+        List<CategoriesDTO> categoriesNotRegistered = universityCategories.stream().filter(categoriesDTO -> !categoriesRegistered.contains(categoriesDTO.getName())).toList();
+
+        if(!categoriesNotRegistered.isEmpty()) {
+
+            List<CategoryEntity> categoryEntities = categoriesNotRegistered.stream().map(categoryDTO -> {
+                CategoryEntity categoryEntity = new CategoryEntity();
+                categoryEntity.setName(categoryDTO.getName());
+                categoryEntity.setDescription(categoryDTO.getDescription());
+                return categoryEntity;
+            }).collect(Collectors.toList());
+            categoryService.saveCategories(categoryEntities);
+
+            categoriesNotRegistered.forEach(categoriesDTO -> {
+                Map<String, String> paramsMoodle = new HashMap<>();
+                paramsMoodle.put("categories[0][name]",categoriesDTO.getName());
+                paramsMoodle.put("categories[0][parent]", !Objects.equals(categoriesDTO.getParent(), "") ?categoryService.findMoodleIdByCategoryName(categoriesDTO.getName()):"0");
+                paramsMoodle.put("categories[0][description]",categoriesDTO.getDescription());
+
+                List<MoodleResponseCategoriesDTO> moodleResponseCategoriesDTO = restClient.getApiDataListWithDynamicParams(urlConfig.getMoodleUrl()+ MoodleFunctionsEnum.CREATE_CATEGORIES.getMoodleFunction(),paramsMoodle, new ParameterizedTypeReference<List<MoodleResponseCategoriesDTO>>() {});
+
+                moodleResponseCategoriesDTO.forEach(moodleId -> {
+                    categoryService.updateMoodleIdByCategoryName(moodleId.getId(),moodleId.getName());
+                });
+            });
+        }
+
         List<CourseDTO> universityCourses = restClient.getApiDataListWithDynamicParams(urlConfig.getUniversityUrl()+universityEndpointsConfig.getCoursesEndpoint(),params, new ParameterizedTypeReference<List<CourseDTO>>() {});
-        List<String> universityCoursesIds = universityCourses.stream().map(courseDTO -> courseDTO.getCourseId()).collect(Collectors.toList());
+        List<String> universityCoursesIds = universityCourses.stream().map(CourseDTO::getCourseId).collect(Collectors.toList());
         List<String> coursesRegistered = courseService.findExistingCourseIdIn(universityCoursesIds);
         List<CourseDTO> universityCoursesNotRegistered = universityCourses.stream().filter(userDTO -> !coursesRegistered.contains(userDTO.getCourseId())).collect(Collectors.toList());
 
@@ -106,7 +143,7 @@ public class UniversityService {
                 courseEntity.setCourseId(courseDTO.getCourseId());
                 courseEntity.setFullName(courseDTO.getFullName());
                 courseEntity.setShortName(courseDTO.getShortName());
-                courseEntity.setCategoryId(courseDTO.getCategoryId());
+                courseEntity.setCategoryName(courseDTO.getCategoryName());
                 return courseEntity;
             }).collect(Collectors.toList());
             courseService.saveCourses(courseEntities);
@@ -115,7 +152,7 @@ public class UniversityService {
                 Map<String, String> paramsMoodle = new HashMap<>();
                 paramsMoodle.put("courses[0][fullname]",courseDto.getFullName());
                 paramsMoodle.put("courses[0][shortname]",courseDto.getShortName());
-                paramsMoodle.put("courses[0][categoryid]",courseDto.getCategoryId());
+                paramsMoodle.put("courses[0][categoryid]",categoryService.findMoodleIdByCategoryName(courseDto.getCategoryName()));
                 paramsMoodle.put("courses[0][idnumber]",courseDto.getCourseId());
 
                 List<MoodleResponseCoursesDTO> moodleResponseCoursesDTO = restClient.getApiDataListWithDynamicParams(urlConfig.getMoodleUrl()+ MoodleFunctionsEnum.CREATE_COURSES.getMoodleFunction(),paramsMoodle, new ParameterizedTypeReference<List<MoodleResponseCoursesDTO>>() {});
@@ -150,12 +187,42 @@ public class UniversityService {
 
             });
         }
+    }
 
 
+    public void syncCourses(){
+        List<CoursesResponse> courses = moodleService.getCourses();
+        StudentGradesResponse studentGradesResponse = moodleService.getGrades();
+        Map<String, String> params = new HashMap<>();
 
+        SyncRequest syncRequest = new SyncRequest();
+        List<CoursesRequest> coursesRequests = courses.stream().map(coursesResponse -> {
+            CoursesRequest coursesRequest = new CoursesRequest();
+            coursesRequest.setCourseId(coursesResponse.getIdCourse());
+            coursesRequest.setName(coursesRequest.getName());
+            coursesRequest.setArea(coursesResponse.getArea());
 
+            List<GradesRequest> gradesRequests = studentGradesResponse.getStudents().stream().map(studentResponse -> {
+                GradesRequest gradesRequest = new GradesRequest();
+                gradesRequest.setStudentUserName(studentResponse.getUsername());
+                gradesRequest.setGrades(studentResponse.getGrades());
+                return gradesRequest;
+            }).toList();
+            coursesRequest.setGradesRequests(gradesRequests);
+            return coursesRequest;
+        }).toList();
 
+        syncRequest.setCoursesRequests(coursesRequests);
+
+        restClient.postGrades(urlConfig.getUniversityUrl()+universityEndpointsConfig.getSyncGrades(),params, syncRequest);
+
+        courses.forEach(coursesResponse -> {
+            courseService.updateSync(coursesResponse.getIdCourse());
+        });
 
     }
+
+
+
 
 }

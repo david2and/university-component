@@ -7,17 +7,13 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "courses")
-public class CourseEntity {
-
+@Table(name = "categories")
+public class CategoryEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String fullName;
-    private String shortName;
-    private String categoryName;
-    private String courseId;
-    private Integer moodleId;
-    private Boolean sync;
-
+    @Column(name = "name", unique = true)
+    private String name;
+    private String moodleId;
+    private String description;
 }

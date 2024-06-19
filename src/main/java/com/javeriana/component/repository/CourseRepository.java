@@ -27,4 +27,11 @@ public interface CourseRepository extends JpaRepository<CourseEntity, Long> {
     @Transactional
     @Query("UPDATE CourseEntity c SET c.moodleId = :id WHERE c.shortName = :shortname")
     int updateMoodleIdByShortName(@Param("id") Integer id, @Param("shortname") String shortName);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE CourseEntity c SET c.sync = True WHERE c.courseId = :id")
+    int updateSync(@Param("id") String id);
+
+
 }

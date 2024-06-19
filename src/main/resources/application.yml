@@ -9,6 +9,8 @@ university-endpoints:
   usersEndpoint: "/usuarios"
   coursesEndpoint: "/cursos"
   registrationsEndpoint: "/inscripciones"
+  categoriesEndpoint: "/categorias"
+  syncGrades: "/actualizar"
 
 
 #Format "Seconds Minuts Hours Days(* = Any day) Months(* = Any month) Day_of_the_week(? = Any day)"
@@ -20,9 +22,9 @@ spring:
     spring.datasource.driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-aut: update
+      ddl-auto: update
     show-sql: true
   task:
     scheduling:
-      cron: "0 15 16 * * ?"  # 6:00 AM todos los días
+      cron: "0 17 12 * * ?"  # 6:00 AM todos los días
       zone: "America/Bogota"

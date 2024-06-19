@@ -3,10 +3,9 @@ package com.javeriana.component.service;
 import com.javeriana.component.config.MoodleFunctionsEnum;
 import com.javeriana.component.config.UrlConfig;
 import com.javeriana.component.model.dto.*;
+import com.javeriana.component.model.entity.CourseEntity;
 import com.javeriana.component.model.entity.UserEntity;
-import com.javeriana.component.model.response.Grades;
-import com.javeriana.component.model.response.StudentGradesResponse;
-import com.javeriana.component.model.response.StudentResponse;
+import com.javeriana.component.model.response.*;
 import com.javeriana.component.rest.RestClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -64,5 +63,18 @@ public class MoodleService {
         return studentGradesResponse;
 
     }
+
+    public List<CoursesResponse> getCourses(){
+        List<CourseEntity> courseEntities = courseService.findAllCourses();
+        return courseEntities.stream().map(courseEntity ->{
+                    CoursesResponse coursesResponse = new CoursesResponse();
+                    coursesResponse.setIdCourse(courseEntity.getCourseId());
+                    coursesResponse.setName(courseEntity.getFullName());
+                    coursesResponse.setArea(courseEntity.getCategoryName());
+                    coursesResponse.setSync(courseEntity.getSync());
+                    return coursesResponse;
+                }).toList();
+    }
+
 
 }

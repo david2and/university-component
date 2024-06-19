@@ -28,11 +28,19 @@ public class CourseService {
         courseRepository.updateMoodleIdByShortName(moodleId,shortName);
     }
 
+    public void updateSync(String idCourse){
+        courseRepository.updateSync(idCourse);
+    }
+
     public String getMoodleIdByCourseId(String courseId){
         return courseRepository.findMoodleIdByCourseId(courseId);
     }
 
     public String getCourseIdByMoodleId(String moodleId){
         return courseRepository.findCourseIdByMoodleId(moodleId);
+    }
+
+    public List<CourseEntity> findAllCourses(){
+        return courseRepository.findAll();
     }
 }
