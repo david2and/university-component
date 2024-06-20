@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
+@RequestMapping("moodle")
 public class MoodleController {
 
     @Autowired
@@ -21,13 +22,13 @@ public class MoodleController {
     @Autowired
     private UniversityService universityService;
 
-    @GetMapping("/getCourses")
+    @GetMapping("/courses")
     public List<CoursesResponse> getCourses() {
         return moodleService.getCourses();
     }
 
 
-    @GetMapping("/getGrades")
+    @GetMapping("/grades")
     public StudentGradesResponse getGrades() {
         return moodleService.getGrades();
     }
