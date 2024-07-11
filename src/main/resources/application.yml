@@ -6,10 +6,6 @@ rest-config:
   universityUrl: "http://localhost:8000/castlemock/mock/rest/project/S7TYew/application/zr0GGE"
 
 university-endpoints:
-  usersEndpoint: "/usuarios"
-  coursesEndpoint: "/cursos"
-  registrationsEndpoint: "/inscripciones"
-  categoriesEndpoint: "/categorias"
   syncGrades: "/actualizar"
 
 

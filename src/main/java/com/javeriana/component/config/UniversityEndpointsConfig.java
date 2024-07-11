@@ -10,10 +10,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConfigurationProperties("university-endpoints")
 public class UniversityEndpointsConfig {
-    String usersEndpoint;
-    String coursesEndpoint;
-    String registrationsEndpoint;
-    String categoriesEndpoint;
     String syncGrades;
 
 }

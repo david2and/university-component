@@ -29,6 +29,10 @@ public class CategoryService {
         return categorieRepository.findMoodleIdByCategoryName(name);
     }
 
+    public String findNameByMoodleId(String moodleID){
+        return categorieRepository.findNameByMoodleId(moodleID);
+    }
+
     public void updateMoodleIdByCategoryName(Integer moodleId, String categoryName){
         categorieRepository.updateMoodleIdByCategoryName(moodleId,categoryName);
     }

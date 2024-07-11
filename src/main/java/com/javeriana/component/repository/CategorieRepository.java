@@ -25,4 +25,6 @@ public interface CategorieRepository extends JpaRepository<CategoryEntity, Long>
     void updateMoodleIdByCategoryName(@Param("id") Integer id, @Param("categoryname") String categoryname);
 
     void deleteByName(String name);
+
+    String findNameByMoodleId(String moodleId);
 }
