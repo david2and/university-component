@@ -43,4 +43,6 @@ public class CourseService {
     public List<CourseEntity> findAllCourses(){
         return courseRepository.findAll();
     }
+
+    public void deleteCourseByShortName(String shortName){courseRepository.deleteByShortName(shortName);}
 }

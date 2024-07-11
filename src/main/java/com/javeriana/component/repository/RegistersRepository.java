@@ -12,4 +12,6 @@ public interface RegistersRepository extends JpaRepository<RegisterEntity, Long>
     @Query("SELECT CASE WHEN COUNT(r) > 0 THEN true ELSE false END FROM RegisterEntity r WHERE r.userName = :username AND r.courseId = :courseid")
     boolean  findExistingUserNames(@Param("username")String username, @Param("courseid")String courseid);
 
+    void deleteByUserNameAndCourseId(String userName, String courseId);
+
 }

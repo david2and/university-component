@@ -33,4 +33,6 @@ public class CategoryService {
         categorieRepository.updateMoodleIdByCategoryName(moodleId,categoryName);
     }
 
+    public void deleteCategoryByCategoryName(String categoryName){categorieRepository.deleteByName(categoryName);}
+
 }

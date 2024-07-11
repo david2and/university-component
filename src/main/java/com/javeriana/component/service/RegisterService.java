@@ -24,4 +24,6 @@ public class RegisterService {
     public boolean  findExistingRegisterIn (String userName, String courseId ){
         return registersRepository.findExistingUserNames(userName,courseId);
     }
+
+    public void deleteByUserNameAndCourseId(String userName, String courseId){ registersRepository.deleteByUserNameAndCourseId(userName,courseId);}
 }

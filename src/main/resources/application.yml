@@ -26,5 +26,5 @@ spring:
     show-sql: true
   task:
     scheduling:
-      cron: "0 17 12 * * ?"  # 6:00 AM todos los días
+      cron: "10 51 12 * * ?"  # 6:00 AM todos los días
       zone: "America/Bogota"

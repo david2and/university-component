@@ -23,4 +23,6 @@ public interface CategorieRepository extends JpaRepository<CategoryEntity, Long>
     @Transactional
     @Query("UPDATE CategoryEntity u SET u.moodleId = :id WHERE u.name = :categoryname")
     void updateMoodleIdByCategoryName(@Param("id") Integer id, @Param("categoryname") String categoryname);
+
+    void deleteByName(String name);
 }

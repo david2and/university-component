@@ -4,9 +4,12 @@ import com.javeriana.component.model.request.SyncRequest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.util.UriComponentsBuilder;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 
 import java.util.List;
@@ -14,6 +17,9 @@ import java.util.Map;
 
 @Service
 public class RestClient<T> {
+
+    private static final Logger logger = Logger.getLogger(RestClient.class.getName());
+
 
     @Autowired
     private RestTemplate restTemplate;
@@ -25,14 +31,19 @@ public class RestClient<T> {
             builder.queryParam(entry.getKey(), entry.getValue());
         }
         String url = builder.build(false).toUriString();
+        try {
+            ResponseEntity<List<T>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    null,
+                    responseType);
 
-        ResponseEntity<List<T>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                responseType);
+            return response.getBody();
+        }catch (RestClientException ex){
+            logger.log(Level.SEVERE,"An error ocurred requesting to API for "+responseType.toString());
+            return null;
+        }
 
-        return response.getBody();
     }
 
     public <T> T getApiDataWithDynamicParams(String URL, Map<String, String> params, ParameterizedTypeReference<T> responseType) {

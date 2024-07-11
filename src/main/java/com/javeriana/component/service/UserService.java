@@ -36,5 +36,8 @@ public class UserService {
     public String getMoodleIdByUserName(String userName){
         return userRepository.findMoodleIdByUserName(userName);
     }
+    public void deleteUserByUsername(String userName) {
+        userRepository.deleteUserByUserName(userName);
+    }
 
 }

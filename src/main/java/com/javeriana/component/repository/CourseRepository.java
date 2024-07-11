@@ -33,5 +33,7 @@ public interface CourseRepository extends JpaRepository<CourseEntity, Long> {
     @Query("UPDATE CourseEntity c SET c.sync = True WHERE c.courseId = :id")
     int updateSync(@Param("id") String id);
 
+    void deleteByShortName (String shortName);
+
 
 }

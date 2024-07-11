@@ -14,6 +14,7 @@ import com.javeriana.component.model.request.SyncRequest;
 import com.javeriana.component.model.response.CoursesResponse;
 import com.javeriana.component.model.response.StudentGradesResponse;
 import com.javeriana.component.rest.RestClient;
+import com.javeriana.component.utils.PasswordHashing;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
@@ -22,10 +23,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @RestController
 public class UniversityService {
+
+    private static final Logger logger = Logger.getLogger(RestClient.class.getName());
+
 
     @Autowired
     UrlConfig urlConfig;
@@ -81,7 +87,7 @@ public class UniversityService {
             userEntity.setFirstName(userDTO.getFirstName());
             userEntity.setLastName(userDTO.getLastName());
             userEntity.setIdNumber(userDTO.getIdNumber());
-            userEntity.setPassword(userDTO.getPassword());
+            userEntity.setPassword(PasswordHashing.hashPassword(userDTO.getPassword()));
             return userEntity;
         }).collect(Collectors.toList());
         userService.saveUsers(userEntities);
@@ -97,9 +103,13 @@ public class UniversityService {
 
             List<MoodleResponseUsersDTO> moodleResponseUsersDTO = restClient.getApiDataListWithDynamicParams(urlConfig.getMoodleUrl()+ MoodleFunctionsEnum.CREATE_USERS.getMoodleFunction(),paramsMoodle, new ParameterizedTypeReference<List<MoodleResponseUsersDTO>>() {});
 
-            moodleResponseUsersDTO.forEach(moodleId -> {
-                userService.updateMoodleIdByUserName(moodleId.getId(),moodleId.getUsername());
-            });
+            if(moodleResponseUsersDTO!=null){
+                moodleResponseUsersDTO.forEach(moodleId -> {
+                    userService.updateMoodleIdByUserName(moodleId.getId(),moodleId.getUsername());
+                });
+            }else{
+                userService.deleteUserByUsername(userDto.getUserName());
+            }
         });
         }
 
@@ -125,10 +135,13 @@ public class UniversityService {
                 paramsMoodle.put("categories[0][description]",categoriesDTO.getDescription());
 
                 List<MoodleResponseCategoriesDTO> moodleResponseCategoriesDTO = restClient.getApiDataListWithDynamicParams(urlConfig.getMoodleUrl()+ MoodleFunctionsEnum.CREATE_CATEGORIES.getMoodleFunction(),paramsMoodle, new ParameterizedTypeReference<List<MoodleResponseCategoriesDTO>>() {});
-
-                moodleResponseCategoriesDTO.forEach(moodleId -> {
-                    categoryService.updateMoodleIdByCategoryName(moodleId.getId(),moodleId.getName());
-                });
+                if(moodleResponseCategoriesDTO!=null) {
+                    moodleResponseCategoriesDTO.forEach(moodleId -> {
+                        categoryService.updateMoodleIdByCategoryName(moodleId.getId(), moodleId.getName());
+                    });
+                }else{
+                    categoryService.deleteCategoryByCategoryName(categoriesDTO.getName());
+            }
             });
         }
 
@@ -157,9 +170,13 @@ public class UniversityService {
                 paramsMoodle.put("courses[0][idnumber]",courseDto.getCourseId());
 
                 List<MoodleResponseCoursesDTO> moodleResponseCoursesDTO = restClient.getApiDataListWithDynamicParams(urlConfig.getMoodleUrl()+ MoodleFunctionsEnum.CREATE_COURSES.getMoodleFunction(),paramsMoodle, new ParameterizedTypeReference<List<MoodleResponseCoursesDTO>>() {});
-                moodleResponseCoursesDTO.forEach(moodleId -> {
-                    courseService.updateMoodleIdByShortName(moodleId.getId(),moodleId.getShortname());
-                });
+                if(moodleResponseCoursesDTO!=null) {
+                    moodleResponseCoursesDTO.forEach(moodleId -> {
+                        courseService.updateMoodleIdByShortName(moodleId.getId(), moodleId.getShortname());
+                    });
+                }else{
+                    courseService.deleteCourseByShortName(courseDto.getShortName());
+                }
             });
         }
 
@@ -179,12 +196,22 @@ public class UniversityService {
             registerService.saveRegisters(registerEntities);
 
             universityUnregisteredRegisters.forEach(registerDto -> {
+                String userId = userService.getMoodleIdByUserName(registerDto.getUserName());
+                String courseId = courseService.getMoodleIdByCourseId(registerDto.getCourseId());
                 Map<String, String> paramsMoodle = new HashMap<>();
                 paramsMoodle.put("enrolments[0][roleid]",MoodleRolesEnum.valueOf(registerDto.getRoleId()).getRoleId().toString());
-                paramsMoodle.put("enrolments[0][userid]",userService.getMoodleIdByUserName(registerDto.getUserName()));
-                paramsMoodle.put("enrolments[0][courseid]",courseService.getMoodleIdByCourseId(registerDto.getCourseId()));
+                paramsMoodle.put("enrolments[0][userid]",userId);
+                paramsMoodle.put("enrolments[0][courseid]",courseId);
 
-                restClient.getApiDataListWithDynamicParams(urlConfig.getMoodleUrl()+ MoodleFunctionsEnum.ENROLL_USERS.getMoodleFunction(),paramsMoodle, new ParameterizedTypeReference<List<String>>() {});
+
+                List<String> response = restClient.getApiDataListWithDynamicParams(urlConfig.getMoodleUrl()+ MoodleFunctionsEnum.ENROLL_USERS.getMoodleFunction(),paramsMoodle, new ParameterizedTypeReference<List<String>>() {});
+
+                if(userId==null || courseId==null ){
+                    logger.log(Level.SEVERE,"An error ocurred requesting to Moodle API for register the User "+registerDto.getUserName()+" to the Course with ID "+registerDto.getCourseId());
+                    registerService.deleteByUserNameAndCourseId(registerDto.getUserName(),registerDto.getCourseId());
+                }
+
+
 
             });
         }
