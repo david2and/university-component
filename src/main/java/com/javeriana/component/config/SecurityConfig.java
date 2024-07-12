@@ -4,6 +4,7 @@ import com.javeriana.component.jwt.JwtAuthFilter;
 import com.javeriana.component.jwt.JwtAuthenticationEntryPoint;
 import com.javeriana.component.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +25,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    @Value("${jwt.secret}")
+    private String secret;
+
+    @Bean
+    public String jwtSecret() {
+        return secret;
+    }
 
     @Autowired
     private JwtAuthFilter authFilter;
