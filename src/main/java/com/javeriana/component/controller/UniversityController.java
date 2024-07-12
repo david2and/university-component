@@ -4,6 +4,7 @@ import com.javeriana.component.model.request.AdminRequest;
 import com.javeriana.component.model.response.CoursesResponse;
 import com.javeriana.component.service.JwtService;
 import com.javeriana.component.service.UniversityService;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -32,7 +33,10 @@ public class UniversityController {
 
     @Tag(name = "Sync Grades", description = "Sync Grades with the University Endpoint")
     @PutMapping("/grades")
-    public void updateSpecificGrades(@Valid @RequestBody Optional<List<CoursesResponse>> coursesToUpdate) {
+    public void updateSpecificGrades(
+            @Parameter(description = "Token de autenticación", required = true, example = "Bearer token")
+            @RequestHeader("Authorization") String authorizationHeader,
+            @Valid @RequestBody Optional<List<CoursesResponse>> coursesToUpdate) {
         if(coursesToUpdate.isEmpty()){
             universityService.syncCourses();
         }else{
@@ -43,7 +47,10 @@ public class UniversityController {
 
     @Tag(name = "Login", description = "User user and password to get auth token")
     @PostMapping("/login")
-    public String loginuser(@Valid @RequestBody AdminRequest adminRequest) {
+    public String loginuser(
+            @Parameter(description = "Token de autenticación", required = true, example = "Bearer token")
+            @RequestHeader("Authorization") String authorizationHeader,
+            @Valid @RequestBody AdminRequest adminRequest) {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(adminRequest.getUsername(), adminRequest.getPassword()));
         if (authentication.isAuthenticated()) {
             return jwtService.generateToken(adminRequest.getUsername());
@@ -54,7 +61,10 @@ public class UniversityController {
 
     @Tag(name = "Register", description = "Register a new user")
     @PostMapping("/registrar")
-    public void registerUser(@Valid @RequestBody AdminRequest adminRequest) {
+    public void registerUser(
+            @Parameter(description = "Token de autenticación", required = true, example = "Bearer token")
+            @RequestHeader("Authorization") String authorizationHeader,
+            @Valid @RequestBody AdminRequest adminRequest) {
         universityService.registerUser(adminRequest);
     }
 

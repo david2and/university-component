@@ -14,6 +14,7 @@ public class CategoryEntity {
     private Long id;
     @Column(name = "name", unique = true)
     private String name;
+    @Column(unique = true)
     private String moodleId;
     private String description;
 }
