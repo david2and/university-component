@@ -26,5 +26,6 @@ public interface CategorieRepository extends JpaRepository<CategoryEntity, Long>
 
     void deleteByName(String name);
 
+    @Query("SELECT u.name FROM CategoryEntity u WHERE u.moodleId = :moodleId")
     String findNameByMoodleId(String moodleId);
 }

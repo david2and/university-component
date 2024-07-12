@@ -26,7 +26,6 @@ public class AdminService implements UserDetailsService {
 
         Optional<AdminEntity> userDetail = adminRepository.findByUserName(username);
 
-        // Converting userDetail to UserDetails
         return userDetail.map(AdminInfoDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found " + username));
     }

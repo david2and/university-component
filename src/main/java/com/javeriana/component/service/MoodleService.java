@@ -18,6 +18,7 @@ import com.javeriana.component.utils.PasswordHashing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -97,7 +98,7 @@ public class MoodleService {
                 }).toList();
     }
 
-
+    @Transactional
     public List<UsersSaveResponse> saveUsers(List<UsersSaveRequest> usersSaveRequests) {
 
         List<UserDTO> universityUsers = usersSaveRequests.stream().map(usersSaveRequest ->{
@@ -158,6 +159,7 @@ public class MoodleService {
         return usersSaveResponses;
     }
 
+    @Transactional
     public List<CoursesSaveResponse> saveCourses(List<CoursesSaveRequest> coursesSaveRequests) {
 
         List<CoursesSaveResponse> coursesSaveResponses = new ArrayList<>();
@@ -176,7 +178,7 @@ public class MoodleService {
             courseDTO.setCourseId(coursesSaveRequest.getCourseId());
             courseDTO.setFullName(coursesSaveRequest.getName());
             courseDTO.setCategoryName(coursesSaveRequest.getCategorySaveRequest().getName());
-            courseDTO.setShortName(courseDTO.getShortName());
+            courseDTO.setShortName(coursesSaveRequest.getShortName());
             universityCourses.add(courseDTO);
 
 
@@ -262,9 +264,8 @@ public class MoodleService {
 
         return coursesSaveResponses;
     }
-
+    @Transactional
     public void saveRegisters(List<RegistersSaveRequest> registersSaveRequests) {
-        Map<String, String> params = new HashMap<>();
 
         List<RegisterDTO> universityRegisters = registersSaveRequests.stream().map(registersSaveRequest -> {
             RegisterDTO registerDTO = new RegisterDTO();
