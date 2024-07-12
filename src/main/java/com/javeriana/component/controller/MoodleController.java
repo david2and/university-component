@@ -1,7 +1,7 @@
 package com.javeriana.component.controller;
 
-import com.javeriana.component.model.dto.GradeDTO;
-import com.javeriana.component.model.dto.GradesResponseDTO;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 import com.javeriana.component.model.response.CoursesResponse;
 import com.javeriana.component.model.response.StudentGradesResponse;
 import com.javeriana.component.service.MoodleService;
@@ -9,7 +9,6 @@ import com.javeriana.component.service.UniversityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -22,12 +21,14 @@ public class MoodleController {
     @Autowired
     private UniversityService universityService;
 
+    @Tag(name = "Get Courses", description = "Retrieves all the courses")
     @GetMapping("/courses")
     public List<CoursesResponse> getCourses() {
         return moodleService.getCourses();
     }
 
 
+    @Tag(name = "Get Grades", description = "Retrieves all the grades by courses")
     @GetMapping("/grades")
     public StudentGradesResponse getGrades() {
         return moodleService.getGrades();

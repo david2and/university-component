@@ -15,6 +15,8 @@ university-endpoints:
 
 #Format "Seconds Minuts Hours Days(* = Any day) Months(* = Any month) Day_of_the_week(? = Any day)"
 spring:
+  main:
+    allow-circular-references: true
   datasource:
     url: jdbc:mysql://localhost:3306/db?allowPublicKeyRetrieval=true&useSSL=false
     username: "root"

@@ -15,5 +15,6 @@ public class AdminEntity {
     private Long id;
     private String userName;
     private String password;
+    private String roles;
 
 }
