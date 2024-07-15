@@ -18,7 +18,7 @@ public class RegistersSaveRequest {
     @NotBlank(message = "Campo requerido - courseId")
     private String courseId;
 
-    @Schema(description = "Rol del usuario, puede ser TEACHER o STUNDENT", example = "STUNDENT")
+    @Schema(description = "Rol del usuario, puede ser TEACHER o STUNDENT", example = "STUDENT")
     @NotBlank(message = "Campo requerido - roleId, El rol debe ser TEACHER o STUDENT")
     @Pattern(regexp = "TEACHER|STUDENT", message = "El rol debe ser TEACHER o STUDENT")
     private String roleId;

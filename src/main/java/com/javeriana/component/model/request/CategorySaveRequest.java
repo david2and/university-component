@@ -13,7 +13,7 @@ public class CategorySaveRequest {
     @NotBlank(message = "Campo requerido- name")
     private String name;
 
-    @Schema(description = "Padre del curso, si no tiene dejar vacio", example = "ParentCourse1")
+    @Schema(description = "Padre del curso, si no tiene dejar vacio", example = "")
     private String parent;
 
     @Schema(description = "Descripcion del curso", example = "Course 1 example")

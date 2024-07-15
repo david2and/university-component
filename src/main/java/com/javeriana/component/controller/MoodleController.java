@@ -9,6 +9,7 @@ import com.javeriana.component.service.MoodleService;
 import com.javeriana.component.service.UniversityService;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("moodle")
+@SecurityRequirement(name = "bearerAuth")
 public class MoodleController {
 
     @Autowired
@@ -31,13 +33,13 @@ public class MoodleController {
     @Autowired
     private UniversityService universityService;
 
-    @Tag(name = "Get Courses", description = "Retrieves all the courses")
+    @Tag(name = "Get Courses", description = "Retrieves all the courses in Moodle")
     @GetMapping("/courses")
     public List<CoursesResponse> getCourses() {
         return moodleService.getCourses();
     }
 
-    @Tag(name = "Get Grades", description = "Retrieves all the grades by courses")
+    @Tag(name = "Get Grades", description = "Retrieves all the grades by courses in Moodle")
     @GetMapping("/grades")
     public StudentGradesResponse getGrades() {
         return moodleService.getGrades();
@@ -46,8 +48,6 @@ public class MoodleController {
     @Tag(name = "Save Users", description = "Save users in Moodle")
     @PostMapping("/users")
     public ResponseEntity<List<UsersSaveResponse>> saveUsers(
-            @Parameter(description = "Token de autenticación", required = true, example = "Bearer token")
-            @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody @Valid List<UsersSaveRequest> usersSaveRequest,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -60,8 +60,6 @@ public class MoodleController {
     @Tag(name = "Save Courses", description = "Save courses in Moodle")
     @PostMapping("/courses")
     public ResponseEntity<List<CoursesSaveResponse>> saveCourses(
-            @Parameter(description = "Token de autenticación", required = true, example = "Bearer token")
-            @RequestHeader("Authorization") String authorizationHeader,
             @Valid @RequestBody List<CoursesSaveRequest> coursesSaveRequest,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
@@ -71,11 +69,9 @@ public class MoodleController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Tag(name = "Registers", description = "Register users in the requested course")
+    @Tag(name = "Registers", description = "Register users in the requested course in Moodle")
     @PostMapping("/registers")
     public ResponseEntity<String> saveRegisters(
-            @Parameter(description = "Token de autenticación", required = true, example = "Bearer token")
-            @RequestHeader("Authorization") String authorizationHeader,
             @Valid @RequestBody List<RegistersSaveRequest> registersSaveRequest,
             BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {

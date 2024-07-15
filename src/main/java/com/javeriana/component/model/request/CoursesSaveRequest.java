@@ -17,9 +17,6 @@ public class CoursesSaveRequest {
     @NotBlank(message = "Campo requerido - name")
     private String name;
 
-    @Schema(description = "Padre del curso, si no tiene dejar en blanco", example = "ParentCourse")
-    private String parent;
-
     @Schema(description = "Nombre corto del curso", example = "ShortCrs")
     @NotBlank(message = "Campo requerido - shortName")
     private String shortName;

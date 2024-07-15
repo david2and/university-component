@@ -3,6 +3,7 @@ package com.javeriana.component.service;
 import com.javeriana.component.config.MoodleFunctionsEnum;
 import com.javeriana.component.config.UniversityEndpointsConfig;
 import com.javeriana.component.config.UrlConfig;
+import com.javeriana.component.errors.WrongFormatFieldException;
 import com.javeriana.component.model.MoodleRolesEnum;
 import com.javeriana.component.model.dto.*;
 import com.javeriana.component.model.entity.CategoryEntity;
@@ -171,7 +172,7 @@ public class MoodleService {
             CategoriesDTO categoriesDTO = new CategoriesDTO();
             categoriesDTO.setName(coursesSaveRequest.getCategorySaveRequest().getName());
             categoriesDTO.setDescription(coursesSaveRequest.getCategorySaveRequest().getDescription());
-            categoriesDTO.setParent(coursesSaveRequest.getParent());
+            categoriesDTO.setParent(coursesSaveRequest.getCategorySaveRequest().getParent());
             universityCategories.add(categoriesDTO);
 
             CourseDTO courseDTO = new CourseDTO();
@@ -201,7 +202,10 @@ public class MoodleService {
             categoriesNotRegistered.forEach(categoriesDTO -> {
                 Map<String, String> paramsMoodle = new HashMap<>();
                 paramsMoodle.put("categories[0][name]",categoriesDTO.getName());
-                paramsMoodle.put("categories[0][parent]", !Objects.equals(categoriesDTO.getParent(), "") ?categoryService.findMoodleIdByCategoryName(categoriesDTO.getName()):"0");
+                if(!Objects.equals(categoriesDTO.getParent(), "") && categoryService.findMoodleIdByCategoryName(categoriesDTO.getParent()) == null){
+                    throw new WrongFormatFieldException("Wrong Category Parent or is not registered");
+                }
+                paramsMoodle.put("categories[0][parent]", !Objects.equals(categoriesDTO.getParent(), "") ?categoryService.findMoodleIdByCategoryName(categoriesDTO.getParent()):"0");
                 paramsMoodle.put("categories[0][description]",categoriesDTO.getDescription());
 
                 List<MoodleResponseCategoriesDTO> moodleResponseCategoriesDTO = restClient.getApiDataListWithDynamicParams(urlConfig.getMoodleUrl()+ MoodleFunctionsEnum.CREATE_CATEGORIES.getMoodleFunction(),paramsMoodle, new ParameterizedTypeReference<List<MoodleResponseCategoriesDTO>>() {});

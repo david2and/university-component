@@ -52,7 +52,7 @@ public class UniversityController {
         }
     }
 
-    @Tag(name = "Register", description = "Register a new user")
+    @Tag(name = "Register", description = "Register a new user into the integration component")
     @PostMapping("/registrar")
     public void registerUser(@Valid @RequestBody AdminRequest adminRequest) {
         universityService.registerUser(adminRequest);
